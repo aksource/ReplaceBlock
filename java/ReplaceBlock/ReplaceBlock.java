@@ -16,7 +16,7 @@ import cpw.mods.fml.common.registry.GameData;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 
-@Mod(modid="ReplaceBlock", name="ReplaceBlock", version="1.7srg-1",dependencies="required-after:FML", useMetadata = true)
+@Mod(modid="ReplaceBlock", name="ReplaceBlock", version="@VERSION@",dependencies="required-after:FML", useMetadata = true)
 public class ReplaceBlock
 {
 	@Mod.Instance("ReplaceBlock")
