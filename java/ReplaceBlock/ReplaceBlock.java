@@ -1,18 +1,19 @@
 package ReplaceBlock;
 
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.registry.GameData;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
+import com.google.common.base.Optional;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.GameData;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import java.util.ArrayList;
 
@@ -42,7 +43,7 @@ public class ReplaceBlock
 				int posX = (int)Math.floor(event.entityLiving.posX);
 				int posZ = (int)Math.floor(event.entityLiving.posZ);
 				int posY = (int)Math.floor(event.entityLiving.posY);
-				Chunk chunk = event.entityLiving.worldObj.getChunkFromBlockCoords(posX, posZ);
+				Chunk chunk = event.entityLiving.worldObj.getChunkFromBlockCoords(new BlockPos(event.entityLiving.posX, event.entityLiving.posY, event.entityLiving.posZ));
 				if(chunk != lastChunk && targetYposMax+chunkWidely >= posY && posY >= targetYposMin-chunkWidely)
 				{
 					lastChunk = chunk;
@@ -53,11 +54,12 @@ public class ReplaceBlock
 						{
 							for(int y = targetYposMax; y >= targetYposMin; y--)
 							{
-								if(this.isTargetBlock(event.entityLiving.worldObj.getBlock(x, y, z)))
+                                BlockPos blockPos = new BlockPos(x, y, z);
+								if(this.isTargetBlock(event.entityLiving.worldObj.getBlockState(blockPos).getBlock()))
 								{
 									//minecraft.getIntegratedServer().worldServerForDimension(minecraft.thePlayer.dimension).setBlock(x, y, z, replaceBlockID, 0, 3);
-									Block block = GameData.blockRegistry.getObject(replaceBlockID);
-									event.entityLiving.worldObj.setBlock(x, y, z, block);
+									Block block = GameData.getBlockRegistry().getObject(replaceBlockID);
+									event.entityLiving.worldObj.setBlockState(blockPos, block.getDefaultState());
 								}
 							}
 						}
@@ -78,13 +80,13 @@ public class ReplaceBlock
 		}
 		public String getUniqueStrings(Object obj)
 		{
-			UniqueIdentifier uId;
+			GameRegistry.UniqueIdentifier uId;
 			if(obj instanceof Block) {
 				uId = GameRegistry.findUniqueIdentifierFor((Block) obj);
 			}else {
 				uId = GameRegistry.findUniqueIdentifierFor((Item) obj);
 			}
-			return uId.modId + ":" + uId.name;
+			return Optional.fromNullable(uId).or(new GameRegistry.UniqueIdentifier("none:dummy")).toString();
 
 		}
 	}
